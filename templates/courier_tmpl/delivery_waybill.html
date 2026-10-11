@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load courier_tags %}
+{% block title %}Накладная на доставку{% endblock %}
+{% block content %}
+<h3>Накладная на доставку</h3>
+
+<form method="get" class="no-print" style="margin-bottom:1rem;">
+  <label for="date-picker"><b>Дата:</b></label>
+  <input type="date" id="date-picker" name="date" value="{{ date_filter }}">
+  <button type="submit" class="btn">Показать</button>
+  {% if date_filter %}
+  <a href="?" class="btn">Сбросить</a>
+  {% endif %}
+</form>
+
+<button class="btn-print no-print">Печать</button>
+
+{% if waybill %}
+<p class="small">Дата: {{ waybill.delivery_date }} | Накладная №{{ waybill.id }} | Позиций: {{ items|length }}</p>
+<table>
+  <thead>
+    <tr><th>#</th><th>Трек-номер</th><th>Внутр. №</th><th>Получатель</th><th>Адрес</th><th>Телефон</th><th>Статус</th><th class="no-print">Действие</th></tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr {% if item.status == 'delivered' %}class="row-ok"{% elif item.status == 'delivery_failed' %}class="row-extra"{% endif %}>
+      <td>{{ item.sort_order|default:forloop.counter }}</td>
+      <td>{{ item.track_number }}</td>
+      <td>{{ item.internal_number|default:"—" }}</td>
+      <td><b>{{ item.recipient_name }}</b></td>
+      <td>{{ item.recipient_address }}</td>
+      <td>{{ item.recipient_phone|default:"—" }}</td>
+      <td>{{ item.status|status_ru }}</td>
+      <td class="no-print">
+        {% if item.status == 'out_for_delivery' or item.status == 'delivery_failed' or item.status == 'ready_for_delivery' %}
+        <a href="{% url 'courier_mark_delivery' item.package_id %}" class="btn">Отметить</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8">Нет позиций</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Накладная на выбранную дату не найдена.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Отсутствующие посылки{% endblock %}
+{% block content %}
+<h3>Отсутствующие посылки</h3>
+<button class="btn-print no-print">Печать</button>
+
+{% if packages %}
+<table>
+  <thead><tr><th>Трек-номер</th><th>Отправитель</th><th>Получатель</th><th>Адрес</th><th>Зафиксировано</th></tr></thead>
+  <tbody>
+    {% for p in packages %}
+    <tr>
+      <td>{{ p.track_number }}</td>
+      <td>{{ p.sender_name }}</td>
+      <td>{{ p.recipient_name }}</td>
+      <td>{{ p.recipient_address }}</td>
+      <td class="small">{{ p.updated_at|date:"d.m.Y H:i" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Нет отсутствующих посылок.</p>
+{% endif %}
+{% endblock %}

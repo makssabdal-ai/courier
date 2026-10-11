@@ -1,0 +1,55 @@
+{% load static %}<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}КурьерПро{% endblock %} — КурьерПро</title>
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+</head>
+<body>
+
+{% if request.session.user_id %}
+{% with role=request.session.role %}
+<nav class="no-print">
+  <a href="{% url 'index' %}"><b>КурьерПро</b></a> &nbsp;|&nbsp;
+  {% if role == 'driver' %}
+    <a href="{% url 'driver_dashboard' %}">Главная</a>
+    <a href="{% url 'driver_input_packages' %}">Ввод посылок</a>
+    <a href="{% url 'driver_delivery_waybill' %}">Накладные доставки</a>
+    <a href="{% url 'driver_return_waybill' %}">Накладные возврата</a>
+    <a href="{% url 'driver_scan_return_qr' %}">Сканирование QR</a>
+  {% elif role == 'manager' %}
+    <a href="{% url 'manager_dashboard' %}">Главная</a>
+    <a href="{% url 'manager_accept_packages' %}">Приём посылок</a>
+    <a href="{% url 'manager_form_delivery_list' %}">Формировать накладную</a>
+    <a href="{% url 'manager_delivery_waybill' %}">Накладные доставки</a>
+    <a href="{% url 'manager_return_waybill' %}">Накладные возврата</a>
+    <a href="{% url 'manager_missing_waybill' %}">Отсутствующие</a>
+    <a href="{% url 'manager_qr_generator' %}">QR-коды</a>
+    <a href="{% url 'manager_scan_return_qr' %}">Скан QR</a>
+    <a href="{% url 'manager_weekly_export' %}">Выгрузка</a>
+  {% elif role == 'courier' %}
+    <a href="{% url 'courier_dashboard' %}">Главная</a>
+    <a href="{% url 'courier_delivery_waybill' %}">Накладная</a>
+    <a href="{% url 'courier_scan_qr' %}">Сканировать QR</a>
+  {% endif %}
+  &nbsp;&nbsp;{{ request.session.full_name }} | <a href="{% url 'logout' %}">Выйти</a>
+</nav>
+{% endwith %}
+{% endif %}
+
+<div class="content">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="msg msg-{{ message.tags|default:'info' }} msg-auto">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</div>
+
+<script src="{% static 'js/app.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

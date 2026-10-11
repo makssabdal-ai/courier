@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load courier_tags %}
+{% block title %}Выгрузка данных{% endblock %}
+{% block content %}
+<h3>Недельная выгрузка данных</h3>
+
+<form method="POST" style="margin-bottom:12px">
+  {% csrf_token %}
+  <label>Дата начала: <input type="date" name="date_from" value="{{ date_from }}" required></label>
+  <label>Дата конца: <input type="date" name="date_to" value="{{ date_to }}" required></label>
+  <label>Статус:
+    <select name="status_filter">
+      <option value="">Все</option>
+      <option value="delivered">Доставлено</option>
+      <option value="delivery_failed">Не доставлено</option>
+      <option value="returned_to_sender">Возвращено</option>
+      <option value="error_missing">Отсутствует</option>
+    </select>
+  </label>
+  <button type="submit">Применить</button>
+  <button type="submit" name="export_csv" value="1">Скачать CSV</button>
+</form>
+
+{% if packages is not None %}
+<p>Найдено: <b>{{ packages|length }}</b> &nbsp; <button class="btn-print no-print">Печать</button></p>
+{% if packages %}
+<table>
+  <thead>
+    <tr><th>Трек-номер</th><th>Внутр. №</th><th>Отправитель</th><th>Получатель</th><th>Адрес</th><th>Статус</th><th>Дата</th><th>Обновлено</th></tr>
+  </thead>
+  <tbody>
+    {% for p in packages %}
+    <tr>
+      <td>{{ p.track_number }}</td>
+      <td>{{ p.internal_number|default:"—" }}</td>
+      <td>{{ p.sender_name }}</td>
+      <td>{{ p.recipient_name }}<br><span class="small">{{ p.recipient_phone|default:"" }}</span></td>
+      <td>{{ p.recipient_address }}</td>
+      <td>{{ p.status|status_ru }}</td>
+      <td class="small">{{ p.expeditor_delivery_date|date:"d.m.Y"|default:"—" }}</td>
+      <td class="small">{{ p.updated_at|date:"d.m.Y H:i" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Нет данных за выбранный период.</p>
+{% endif %}
+{% endif %}
+{% endblock %}

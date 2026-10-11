@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Ввод посылок{% endblock %}
+{% block content %}
+<h3>Ввод посылок</h3>
+
+{% if not pending_session %}
+<form method="POST" action="{% url 'driver_start_session' %}">
+  {% csrf_token %}
+  <button>Начать новую сессию</button>
+</form>
+<p>Нет активной сессии.</p>
+{% else %}
+
+<h4>Добавить посылку (сессия #{{ pending_session.id }})</h4>
+<form method="POST" action="{% url 'driver_add_package' %}" style="max-width:480px">
+  {% csrf_token %}
+  <p><label>Трек-номер *<br>
+    <input type="text" id="track_number" name="track_number"
+           value="RU-" maxlength="15" autocomplete="off"
+           placeholder="RU-77-123456789" required style="width:100%">
+    <span class="small">Формат: RU-XX-XXXXXXXXX</span></label></p>
+  <p><label>ФИО отправителя *<br>
+    <input type="text" name="sender_name" maxlength="100" required style="width:100%"></label></p>
+  <p><label>Адрес отправителя *<br>
+    <input type="text" name="sender_address" maxlength="255" required style="width:100%"></label></p>
+  <p><label>ФИО получателя *<br>
+    <input type="text" name="recipient_name" maxlength="100" required style="width:100%"></label></p>
+  <p><label>Адрес доставки *<br>
+    <input type="text" name="recipient_address" maxlength="255" required style="width:100%"></label></p>
+  <p><label>Телефон получателя<br>
+    <input type="tel" name="recipient_phone" placeholder="+7 (900) 123-45-67" maxlength="20" style="width:100%">
+    <span class="small">Формат: +7 (XXX) XXX-XX-XX</span></label></p>
+  <button type="submit">Добавить посылку</button>
+</form>
+
+<hr>
+<h4>Список посылок в сессии: {{ packages|length }}</h4>
+{% if packages %}
+<form method="POST" action="{% url 'driver_confirm_session' pending_session.id %}"
+      onsubmit="return confirm('Подтвердить доставку {{ packages|length }} посылок?')">
+  {% csrf_token %}
+  <button type="submit">Подтвердить сессию</button>
+</form>
+<table style="margin-top:8px">
+  <thead><tr><th>#</th><th>Трек-номер</th><th>Получатель</th><th>Адрес</th><th></th></tr></thead>
+  <tbody>
+    {% for p in packages %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ p.track_number }}</td>
+      <td>{{ p.recipient_name }}</td>
+      <td>{{ p.recipient_address }}</td>
+      <td>
+        <form method="POST" action="{% url 'driver_remove_package' p.id %}" style="display:inline">
+          {% csrf_token %}
+          <button>Удалить</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Список пуст — добавьте посылки выше.</p>
+{% endif %}
+
+{% endif %}
+{% endblock %}

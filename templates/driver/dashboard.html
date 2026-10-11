@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Водитель-экспедитор{% endblock %}
+{% block content %}
+<h3>Кабинет водителя-экспедитора</h3>
+
+{% if pending_session %}
+<div class="msg msg-warning">
+  Активная сессия: <b>{{ pending_session.pkg_count }} посылок</b>.
+  <a href="{% url 'driver_input_packages' %}">Продолжить ввод</a>
+</div>
+{% endif %}
+
+<p>
+  <a href="{% url 'driver_input_packages' %}">Ввод посылок</a> |
+  <a href="{% url 'driver_delivery_waybill' %}">Накладные на доставку</a> |
+  <a href="{% url 'driver_return_waybill' %}">Накладные на возврат</a> |
+  <a href="{% url 'driver_scan_return_qr' %}">Сканирование QR (возврат)</a>
+</p>
+{% endblock %}

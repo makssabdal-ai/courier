@@ -1,0 +1,25 @@
+body { font-family: sans-serif; font-size: 14px; margin: 0; }
+nav { background: #444; padding: 6px 10px; }
+nav a { color: #fff; text-decoration: none; margin-right: 8px; }
+nav a:hover { text-decoration: underline; }
+.content { padding: 10px 14px; }
+table { border-collapse: collapse; margin-bottom: 10px; }
+th, td { border: 1px solid #bbb; padding: 4px 8px; vertical-align: top; }
+th { background: #eee; }
+input[type=text], input[type=password], input[type=tel], input[type=date],
+input[type=file], select { padding: 3px; border: 1px solid #999; }
+button { padding: 3px 10px; cursor: pointer; margin-right: 4px; }
+a.btn { padding: 3px 8px; border: 1px solid #999; text-decoration: none; color: #000; }
+.msg { padding: 6px; margin: 4px 0; border-left: 4px solid #999; background: #f9f9f9; }
+.msg-success { border-color: green; background: #f0fff0; }
+.msg-warning { border-color: orange; background: #fffbea; }
+.msg-danger  { border-color: red;    background: #fff0f0; }
+.msg-info    { border-color: #369;   background: #f0f4ff; }
+.small { font-size: 12px; color: #666; }
+.row-ok      { background: #efffef; }
+.row-missing { background: #ffefef; }
+.row-extra   { background: #fffbe6; }
+.qr-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.qr-item { text-align: center; }
+.qr-item img { width: 150px; height: 150px; border: 1px solid #ccc; display: block; }
+@media print { nav, .no-print { display: none; } }

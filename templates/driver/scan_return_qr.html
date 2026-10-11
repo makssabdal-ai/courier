@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Сканирование QR (возврат){% endblock %}
+{% block content %}
+<h3>Регистрация возврата посылок (QR-скан)</h3>
+
+{% if recent_return %}
+<p>Сверка с накладной на возврат <b>#{{ recent_return.id }}</b>
+  ({{ recent_return.item_count }} поз., {{ recent_return.created_at|date:"d.m.Y H:i" }})
+</p>
+{% else %}
+<p>Накладных на возврат нет. Будет создан новый список.</p>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="scan">
+  <p><label>Изображения QR-кодов (PNG/JPG):<br>
+    <input type="file" name="qr_images" accept="image/*" multiple required>
+  </label></p>
+  <button type="submit">Распознать и сверить</button>
+</form>
+
+{% if scan_errors %}
+<p style="color:red">Ошибки распознавания:</p>
+<ul>{% for err in scan_errors %}<li>{{ err }}</li>{% endfor %}</ul>
+{% endif %}
+
+{% if scan_results %}
+<h4>
+  Результаты сверки:
+  {% if ok_count %}совпадают {{ ok_count }}{% endif %}
+  {% if missing_count %}/ отсутствуют {{ missing_count }}{% endif %}
+  {% if extra_count %}/ лишних {{ extra_count }}{% endif %}
+</h4>
+<p class="small">Зелёный — совпадает | Красный — в накладной, не отсканирована | Жёлтый — нет в накладной</p>
+
+<form method="POST" id="form-confirm-return-driver" data-count="{{ scan_results|length }}">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="confirm">
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="select-all"></th>
+        <th>Трек-номер</th><th>Получатель</th><th>Адрес</th><th>Статус</th><th>Сверка</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in scan_results %}
+      <tr class="{% if item.match == 'ok' %}row-ok{% elif item.match == 'missing' %}row-missing{% elif item.match == 'extra' %}row-extra{% endif %}">
+        <td>
+          {% if item.package_id %}
+          <input type="checkbox" class="row-check" name="pkg_ids"
+                 value="{{ item.package_id }}"
+                 {% if item.match != 'missing' %}checked{% endif %}>
+          {% else %}—{% endif %}
+        </td>
+        <td>{{ item.track_number }}</td>
+        <td>{{ item.recipient_name }}</td>
+        <td>{{ item.recipient_address }}</td>
+        <td>{{ item.pkg_status }}</td>
+        <td>
+          {% if item.match == 'ok' %}Совпадает
+          {% elif item.match == 'missing' %}В накладной, не отсканирована
+          {% elif item.match == 'extra' %}Лишняя (нет в накладной)
+          {% else %}Новая запись{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p>
+    <button type="submit">Подтвердить возврат отмеченных</button>
+  </p>
+</form>
+<form method="POST" style="display:inline"
+      onsubmit="return confirm('Очистить результаты сканирования?')">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="clear">
+  <button type="submit" class="btn">Начать заново</button>
+</form>
+{% else %}
+<p>Загрузите изображения QR-кодов для начала сверки.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load courier_tags %}
+{% block title %}Отметка доставки{% endblock %}
+{% block content %}
+<p class="no-print"><a href="{% url 'courier_delivery_waybill' %}">← Назад к накладной</a></p>
+<h3>Отметка доставки</h3>
+
+<table>
+  <tr><td>Трек-номер</td><td><b>{{ pkg.track_number }}</b></td></tr>
+  <tr><td>Внутр. №</td><td>{{ pkg.internal_number|default:"—" }}</td></tr>
+  <tr><td>Получатель</td><td><b>{{ pkg.recipient_name }}</b></td></tr>
+  <tr><td>Адрес</td><td>{{ pkg.recipient_address }}</td></tr>
+  <tr><td>Телефон</td><td>{{ pkg.recipient_phone|default:"—" }}</td></tr>
+  <tr><td>Статус</td><td>{{ pkg.status|status_ru }}</td></tr>
+  {% if pkg.delivery_fail_count > 0 %}
+  <tr><td>Попыток доставки</td><td style="color:orange"><b>{{ pkg.delivery_fail_count }}</b></td></tr>
+  {% endif %}
+</table>
+
+<form method="POST" style="margin-top:10px">
+  {% csrf_token %}
+  <p>
+    <button type="submit" name="action" value="delivered">Доставлено</button>
+    <button type="submit" name="action" value="failed"
+            onclick="return confirm('Отметить как недоставленное?')">
+      Не удалось доставить
+      {% if pkg.delivery_fail_count >= 1 %}(2-я попытка){% endif %}
+    </button>
+  </p>
+  <p>
+    Перенести на дату:
+    <input type="date" name="postpone_date" id="postpone_date">
+    <button type="submit" name="action" value="postpone"
+            onclick="if(!document.getElementById('postpone_date').value){alert('Выберите дату');return false;}">
+      Перенести
+    </button>
+  </p>
+</form>
+{% endblock %}

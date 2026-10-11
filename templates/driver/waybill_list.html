@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h3>{{ title }}</h3>
+<button class="btn-print no-print">Печать</button>
+
+<form method="GET" class="no-print" style="margin:8px 0">
+  <label>Фильтр по дате:
+    <input type="date" name="date" value="{{ date_filter }}">
+  </label>
+  <button type="submit">Найти</button>
+  {% if date_filter %}<a href="?" class="btn">Сбросить</a>{% endif %}
+</form>
+
+{% if waybills %}
+<table>
+  <thead><tr><th>#</th><th>Дата доставки</th><th>Создана</th><th>Автор</th><th>Позиций</th><th></th></tr></thead>
+  <tbody>
+    {% for w in waybills %}
+    <tr>
+      <td>{{ w.id }}</td>
+      <td>{{ w.delivery_date|default:"—" }}</td>
+      <td class="small">{{ w.created_at|date:"d.m.Y H:i" }}</td>
+      <td>{{ w.author|default:"—" }}</td>
+      <td>{{ w.item_count }}</td>
+      <td>
+        {% if waybill_type == 'delivery' %}
+          <a href="{% url 'driver_view_delivery_waybill' w.id %}" class="btn">Открыть</a>
+        {% else %}
+          <a href="{% url 'driver_view_return_waybill' w.id %}" class="btn">Открыть</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Накладные не найдены.</p>
+{% endif %}
+{% endblock %}

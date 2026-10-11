@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Менеджер{% endblock %}
+{% block content %}
+<h3>Кабинет менеджера</h3>
+
+{% if stats %}
+<p><b>Статистика:</b>
+  В офисе: {{ stats.office|default:0 }} |
+  Готово: {{ stats.ready|default:0 }} |
+  Не доставлено: {{ stats.failed|default:0 }} |
+  Отсутствует: {{ stats.missing|default:0 }} |
+  Доставлено: {{ stats.delivered|default:0 }} |
+  Возвращено: {{ stats.returned|default:0 }}
+</p>
+{% endif %}
+
+{% if overdue %}
+<p><b>Просроченные посылки (более 14 дней) — {{ overdue|length }} шт.:</b></p>
+<table>
+  <thead><tr><th>Трек-номер</th><th>Внутр. №</th><th>Получатель</th><th>Дата поступления</th><th></th></tr></thead>
+  <tbody>
+    {% for p in overdue %}
+    <tr>
+      <td>{{ p.track_number }}</td>
+      <td>{{ p.internal_number|default:"—" }}</td>
+      <td>{{ p.recipient_name }}</td>
+      <td style="color:red">{{ p.expeditor_delivery_date|date:"d.m.Y" }}</td>
+      <td>
+        <form method="POST" action="{% url 'manager_mark_return' p.id %}" style="display:inline"
+              onsubmit="return confirm('Возврат посылки {{ p.track_number }}?')">
+          {% csrf_token %}
+          <button>Возврат</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<p>
+  <a href="{% url 'manager_accept_packages' %}">Приём посылок</a> |
+  <a href="{% url 'manager_form_delivery_list' %}">Формирование накладной</a> |
+  <a href="{% url 'manager_qr_generator' %}">QR-коды</a> |
+  <a href="{% url 'manager_weekly_export' %}">Выгрузка</a>
+</p>
+{% endblock %}

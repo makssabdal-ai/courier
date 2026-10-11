@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Сканировать QR{% endblock %}
+{% block content %}
+<h3>Сканировать QR-код посылки</h3>
+
+{% if result %}
+{% if result.status == 'ok' %}
+<div class="msg msg-success">
+  <p>QR распознан: <b>{{ result.track_number }}</b></p>
+  <p>Получатель: {{ result.recipient_name }}<br>
+     Адрес: {{ result.recipient_address }}<br>
+     Статус: {{ result.status_db }}</p>
+  {% if result.package_id %}
+  <a href="{% url 'courier_mark_delivery' result.package_id %}" class="btn">Отметить доставку</a>
+  {% endif %}
+</div>
+{% else %}
+<div class="msg msg-danger">Ошибка: {{ result.error }}</div>
+{% endif %}
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  <p><label>Загрузить QR-код:<br>
+    <input type="file" name="qr_image" accept="image/*" capture="environment" required>
+  </label></p>
+  <button type="submit">Распознать</button>
+</form>
+{% endblock %}

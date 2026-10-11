@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}QR-коды{% endblock %}
+{% block content %}
+<h3>Генерация QR-кодов</h3>
+
+<form method="POST" action="{% url 'manager_export_qr' %}">
+  {% csrf_token %}
+  <p>
+    <label>Папка для сохранения:
+      <input type="text" name="directory" value="qr_output">
+    </label>
+    <button type="submit">Сохранить в папку</button>
+    <button type="button" class="btn-print">Печать QR</button>
+  </p>
+
+  {% if packages %}
+  <p>
+    <label><input type="checkbox" id="select-all"> Выбрать все</label>
+  </p>
+  <div class="qr-grid">
+    {% for pkg in packages %}
+    <div class="qr-item">
+      <label><input type="checkbox" class="row-check" name="pkg_ids" value="{{ pkg.id }}" checked>
+        {{ pkg.internal_number|default:pkg.track_number }}</label>
+      <img src="{% url 'manager_get_qr' pkg.id %}" alt="QR {{ pkg.track_number }}" loading="lazy">
+      <div class="small">{{ pkg.recipient_name }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>Нет посылок со статусом «Готово к отправке».</p>
+  {% endif %}
+</form>
+{% endblock %}

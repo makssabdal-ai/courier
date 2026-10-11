@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Сканирование QR (менеджер){% endblock %}
+{% block content %}
+<h3>Сканирование QR-кодов возврата</h3>
+
+<h4>Загрузить изображения QR</h4>
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  <p><label>Файлы PNG/JPG:<br>
+    <input type="file" name="qr_images" accept="image/*" multiple>
+  </label></p>
+  <button type="submit">Распознать QR-коды</button>
+</form>
+
+{% if scan_results %}
+<h4>Результаты ({{ scan_results|length }})</h4>
+<ul>
+  {% for r in scan_results %}
+  <li>
+    {% if r.status == 'ok' %}
+      <b>{{ r.track_number }}</b> — {{ r.recipient_name }}, {{ r.recipient_address }}
+    {% else %}
+      Ошибка: {{ r.error|default:"Не распознано" }}
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% if ok_count > 0 %}
+<p class="small">Накладная создаётся как список для сверки. Водитель подтверждает приём через QR-сканирование.</p>
+<form method="POST" action="{% url 'manager_confirm_return_waybill' %}"
+      id="form-confirm-return" data-count="{{ ok_count }}">
+  {% csrf_token %}
+  <button type="submit">Сформировать накладную на возврат ({{ ok_count }})</button>
+</form>
+{% endif %}
+{% endif %}
+
+{% if recent_returns %}
+<h4>Последние накладные на возврат</h4>
+<table>
+  <thead><tr><th>#</th><th>Дата</th><th>Позиций</th><th></th></tr></thead>
+  <tbody>
+    {% for w in recent_returns %}
+    <tr>
+      <td>{{ w.id }}</td>
+      <td class="small">{{ w.created_at|date:"d.m.Y H:i" }}</td>
+      <td>{{ w.item_count }}</td>
+      <td><a href="{% url 'manager_view_return_waybill' w.id %}" class="btn">Открыть</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

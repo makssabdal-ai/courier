@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Курьер{% endblock %}
+{% block content %}
+<h3>Кабинет курьера</h3>
+
+<form method="get" style="margin-bottom:1rem;">
+  <label for="date-picker"><b>Дата:</b></label>
+  <input type="date" id="date-picker" name="date" value="{{ selected_date }}" max="{{ today }}">
+  <button type="submit" class="btn">Показать</button>
+  {% if selected_date != today %}
+  <a href="?" class="btn">Сегодня</a>
+  {% endif %}
+</form>
+
+{% if waybill %}
+<p>
+  Накладная на {{ selected_date }}: <b>{{ pkg_count }} посылок</b>
+  {% if stats %}
+  — доставлено: {{ stats.delivered }}, не удалось: {{ stats.failed }}, ожидает: {{ stats.pending }}
+  {% endif %}
+</p>
+<p>
+  <a href="{% url 'courier_delivery_waybill' %}?date={{ selected_date }}" class="btn">Открыть накладную</a>
+  <a href="{% url 'courier_scan_qr' %}" class="btn">Сканировать QR</a>
+</p>
+{% else %}
+<p>Накладная на {{ selected_date }} не найдена.</p>
+{% endif %}
+
+<p>
+  <a href="{% url 'courier_delivery_waybill' %}?date={{ selected_date }}">Накладная</a> |
+  <a href="{% url 'courier_scan_qr' %}">Сканировать QR</a>
+</p>
+{% endblock %}

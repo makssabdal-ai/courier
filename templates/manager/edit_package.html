@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Редактирование посылки{% endblock %}
+{% block content %}
+<h3>Редактирование: {{ pkg.track_number }}</h3>
+<p><a href="{% url 'manager_accept_packages' %}">← Назад</a></p>
+
+<form method="POST" style="max-width:500px">
+  {% csrf_token %}
+  <fieldset>
+    <legend>Отправитель</legend>
+    <p><label>ФИО отправителя<br>
+      <input type="text" name="sender_name" value="{{ pkg.sender_name }}" required style="width:100%"></label></p>
+    <p><label>Адрес отправителя<br>
+      <input type="text" name="sender_address" value="{{ pkg.sender_address }}" required style="width:100%"></label></p>
+  </fieldset>
+  <fieldset>
+    <legend>Получатель</legend>
+    <p><label>ФИО получателя<br>
+      <input type="text" name="recipient_name" value="{{ pkg.recipient_name }}" required style="width:100%"></label></p>
+    <p><label>Адрес доставки<br>
+      <input type="text" name="recipient_address" value="{{ pkg.recipient_address }}" required style="width:100%"></label></p>
+    <p><label>Телефон<br>
+      <input type="tel" name="recipient_phone" value="{{ pkg.recipient_phone|default:'' }}" style="width:100%"></label></p>
+  </fieldset>
+  <button type="submit">Сохранить</button>
+  <a href="{% url 'manager_accept_packages' %}" class="btn">Отмена</a>
+</form>
+{% endblock %}

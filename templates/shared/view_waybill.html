@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load courier_tags %}
+{% block title %}Накладная #{{ waybill.id }}{% endblock %}
+{% block content %}
+<p class="no-print">
+  <a href="{{ back_url }}" class="btn">← Назад</a>
+  <button class="btn-print">Печать</button>
+</p>
+
+<h3>
+  {% if waybill.waybill_type == 'delivery' %}Накладная на доставку
+  {% elif waybill.waybill_type == 'return' %}Накладная на возврат
+  {% else %}Накладная об отсутствующих посылках{% endif %}
+  №{{ waybill.id }}
+</h3>
+
+<p class="small">
+  Создана: {{ waybill.created_at|date:"d.m.Y H:i" }} |
+  Автор: {{ waybill.author|default:"—" }} |
+  Дата доставки: {{ waybill.delivery_date|default:"—" }} |
+  Позиций: {{ items|length }}
+</p>
+
+<table>
+  <thead>
+    <tr><th>#</th><th>Трек-номер</th><th>Внутр. №</th><th>Отправитель</th><th>Получатель / Тел.</th><th>Адрес доставки</th><th>Статус</th></tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ item.track_number }}</td>
+      <td>{{ item.internal_number|default:"—" }}</td>
+      <td>{{ item.sender_name }}</td>
+      <td>{{ item.recipient_name }}<br><span class="small">{{ item.recipient_phone|default:"" }}</span></td>
+      <td>{{ item.recipient_address }}</td>
+      <td>{{ item.status|status_ru }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7">Нет позиций</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<br>
+<p>Составил: _________________ / {{ waybill.author|default:"" }} /</p>
+<p>Принял: _________________</p>
+{% endblock %}

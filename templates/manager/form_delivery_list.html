@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Формирование накладной{% endblock %}
+{% block content %}
+<h3>Формирование накладной на доставку</h3>
+
+<p>
+  Время: <b>{{ now|date:"H:i" }}</b> —
+  {% if can_form %}доступно{% else %}<b style="color:red">формирование доступно только после 17:00</b>{% endif %}
+</p>
+
+<p>
+  {% if has_office %}
+    <b style="color:red">Есть необработанные посылки в офисе.</b>
+    <a href="{% url 'manager_accept_packages' %}">Перейти к приёму</a>
+  {% else %}
+    Необработанных посылок в офисе нет.
+  {% endif %}
+</p>
+
+{% if failed_preview %}
+<h4>Приоритетные (первый отказ) — {{ failed_preview|length }} шт.</h4>
+<table>
+  <thead><tr><th>Трек-номер</th><th>Получатель</th><th>Адрес</th></tr></thead>
+  <tbody>
+    {% for p in failed_preview %}
+    <tr>
+      <td>{{ p.track_number }}</td>
+      <td>{{ p.recipient_name }}</td>
+      <td>{{ p.recipient_address }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<h4>Готовы к доставке — {{ ready_preview|length }} шт.</h4>
+{% if ready_preview %}
+<table>
+  <thead><tr><th>#</th><th>Трек-номер</th><th>Внутр. №</th><th>Получатель</th><th>Перенести дату</th></tr></thead>
+  <tbody>
+    {% for p in ready_preview %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ p.track_number }}</td>
+      <td>{{ p.internal_number|default:"—" }}</td>
+      <td>{{ p.recipient_name }}</td>
+      <td>
+        <form method="POST" action="{% url 'manager_change_delivery_date' p.id %}" style="display:inline-flex;gap:4px;">
+          {% csrf_token %}
+          <input type="date" name="planned_delivery_date" required>
+          <button type="submit">Перенести</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Нет посылок.</p>
+{% endif %}
+
+{% if can_form and not has_office %}
+  {% if failed_preview or ready_preview %}
+  <form method="POST">
+    {% csrf_token %}
+    <button type="submit">Сформировать накладную на доставку</button>
+  </form>
+  {% else %}
+  <p>Нет посылок для формирования накладной.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

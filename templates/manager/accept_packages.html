@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load courier_tags %}
+{% block title %}Приём посылок{% endblock %}
+{% block content %}
+<h3>Приём посылок</h3>
+
+{% if packages %}
+<p class="no-print">
+  <form method="POST" action="{% url 'manager_confirm_all' %}" style="display:inline"
+        onsubmit="return confirm('Подтвердить все {{ packages|length }} посылок?')">
+    {% csrf_token %}
+    <button>Подтвердить все ({{ packages|length }})</button>
+  </form>
+</p>
+<table>
+  <thead>
+    <tr><th>Трек-номер</th><th>Отправитель / Адрес</th><th>Получатель / Телефон</th><th>Адрес доставки</th><th>Дата</th><th>Водитель</th><th class="no-print">Действия</th></tr>
+  </thead>
+  <tbody>
+    {% for p in packages %}
+    <tr>
+      <td>{{ p.track_number }}</td>
+      <td>{{ p.sender_name }}<br><span class="small">{{ p.sender_address }}</span></td>
+      <td>{{ p.recipient_name }}<br><span class="small">{{ p.recipient_phone|default:"" }}</span></td>
+      <td>{{ p.recipient_address }}</td>
+      <td class="small">{{ p.expeditor_delivery_date|date:"d.m.Y H:i"|default:"—" }}</td>
+      <td>{{ p.driver_name|default:"—" }}</td>
+      <td class="no-print">
+        <a href="{% url 'manager_edit_package' p.id %}" class="btn">Изменить</a>
+        <form method="POST" action="{% url 'manager_confirm_package' p.id %}" style="display:inline">
+          {% csrf_token %}<button>Принять</button>
+        </form>
+        <form method="POST" action="{% url 'manager_mark_missing' p.id %}" style="display:inline"
+              onsubmit="return confirm('Отметить как отсутствующую?')">
+          {% csrf_token %}<button>Отсутствует</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Нет посылок, ожидающих приёма.</p>
+{% endif %}
+{% endblock %}
