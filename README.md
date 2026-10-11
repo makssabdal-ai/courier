@@ -59,9 +59,7 @@ de_2026_089/
 │   ├── schema.sql                  # SQL-схема + триггеры + функции
 │   ├── seed_users.sql
 │   └── seed.sql
-├── docs/                           # Документация
-│   ├── module1_documentation.docx
-│   └── module5_documentation.docx
+├── docs/                           # UML-изображения
 ├── qr_output/                      # Сохранённые QR-коды (генерируется автоматически)
 ├── seed_users.py                   # Создание тестовых пользователей
 ├── manage.py
@@ -181,15 +179,6 @@ python manage.py runserver 8000
 - `package_history` — аудит смен статусов (триггер `trg_package_status`)
 - `monthly_counter` — атомарный счётчик внутренних номеров
 - `district_stats` — статистика по районам (из датасета)
-
----
-
-## Документация
-
-| Файл | Описание |
-|---|---|
-| `docs/module1_documentation.docx` | Модуль 1 — Проектная документация (UML, бизнес-требования) |
-| `docs/module5_documentation.docx` | Модуль 5 — Инструкция пользователя + протокол верификации |
 
 ---
 
