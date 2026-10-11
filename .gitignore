@@ -212,3 +212,8 @@ __marimo__/
 .env.*
 !.env.example
 uploads/
+
+# Word documents are kept locally
+*.doc
+*.docx
+*.docm
